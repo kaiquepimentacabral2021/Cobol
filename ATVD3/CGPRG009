@@ -1,0 +1,136 @@
+       IDENTIFICATION DIVISION.
+      *=======================*
+       PROGRAM-ID.   CGPRG004.
+       AUTHOR. CELSO GALLAO.
+       DATE-WRITTEN. MARCH 26, 2025.
+       DATE-COMPILED. MARCH 26, 2025.
+       INSTALLATION. FATEC SAO CAETANO.
+       SECURITY. NIVEL BASICO.
+      *--------------------------------------------------------------*
+       ENVIRONMENT DIVISION.
+      *====================*
+       CONFIGURATION SECTION.
+      *---------------------*
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA
+           CURRENCY SIGN IS "R$ " WITH PICTURE SYMBOL "$".
+           .
+
+       INPUT-OUTPUT SECTION.
+      *---------------------*
+      FILE-CONTROL.
+      *==> LOCAL PARA O SELECT DOS ARQUIVOS
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+              77 AS-CEP            PIC 9(8).
+              77 AS-FRENTE         PIC 9(3)V99.
+              77 AS-COMP           PIC 9(3)V99.
+              77 AS-VAL-M2         PIC 9(5)V99.
+              77 AS-VAL-VENDA      PIC 9(8)V99.
+              77 AS-COMISSAO       PIC 9(7)V99.
+              77 AS-DATA           PIC 9(8).
+              77 AS-HORA           PIC 99.99.9999.
+              77 AS-HIFENS         PIC X(80) VALUE ALL '-'.
+
+      *=============*
+       FILE SECTION.
+      *------------*
+      *==> LOCAL PARA A FD (DESCRICAO DOS ARQUIVOS)
+
+       WORKING-STORAGE SECTION.
+      *-----------------------*
+
+      *-----> AREA AUXILIAR
+       77  WS-FIM                 PIC X(01) VALUE "N".
+       77  WS-CTEXIB              PIC 9(02).
+       77  LIMITE-VENDA           PIC 9(10)V99 VALUE 1500000.
+
+      *-----> DADOS DE SAIDA VIA SYSOUT
+       01  WS-REG-SYSOUT.
+           05 WS-CEP            PIC 9(08).
+           05 FILLER            PIC X(01) VALUE SPACES.
+           05 WS-FRENTE         PIC ZZ9.99.
+           05 FILLER            PIC X(02) VALUE "M ".
+           05 WS-COMP           PIC ZZ9.99.
+           05 FILLER            PIC X(02) VALUE "M ".
+           05 WS-VAL-M2         PIC $$.$$9.99.
+           05 FILLER            PIC X(01) VALUE SPACES.
+           05 WS-VAL-VENDA      PIC $$.$$$.$$9.99.
+           05 FILLER            PIC X(01) VALUE SPACES.
+           05 WS-COMISSAO       PIC $.$$$.$$9.99.
+           05 FILLER            PIC X(01) VALUE SPACES.
+           05 WS-MENSA-GEM      PIC X(12).
+
+      LINKAGE SECTION.
+      *----------------*
+       01  LK-PARAMETROS.
+           05 LK-NR-DPTO             PIC 9(04).
+           05 LK-NOME-DPTO           PIC X(15).
+           05 LK-COD-RETORNO         PIC 99.
+      *
+       PROCEDURE DIVISION.
+      *==================*
+      *--------------------------------------------------------------*
+      *    PROCESSO PRINCIPAL                                        *
+      *--------------------------------------------------------------*
+
+           PERFORM 010-INICIAR
+           PERFORM 030-PROCESSAR UNTIL WS-FIM = 'S'
+           PERFORM 050-TERMINAR
+           STOP RUN
+           .
+
+      *--------------------------------------------------------------*
+      *    PROCEDIMENTOS INICIAIS                                    *
+      *--------------------------------------------------------------*
+       010-INICIAR.
+
+           DISPLAY "** PROGRAMA 4 **"
+           DISPLAY "** KAIQUE PIMENTA -  THIAGO VALERO**"
+           DISPLAY "CALCULO DO PRECO DE VENDA DE UM TERRENO RETANGULAR"
+           DISPLAY "DATA DO CALCULO: " WS-DATA
+           DISPLAY "HORA DO CALCULO: " WS-HORA
+           MOVE  ZEROS  TO  WS-CTEXIB
+           .
+
+      *--------------------------------------------------------------*
+      *    PROCESSAR DADOS RECEBIDOS DA SYSIN                        *
+      *--------------------------------------------------------------*
+       030-PROCESSAR.
+
+           DISPLAY '** PROCESSAMENTO **'
+
+           MOVE  09000300           TO   AS-CEP
+           MOVE  12,35              TO   AS-FRENTE
+           MOVE  52,00              TO   AS-COMP
+           MOVE  2315,00            TO   AS-VAL-M2
+
+           COMPUTE AS-VAL-VENDA = AS-FRENTE * AS-COMP * AS-VAL-M2
+
+           IF AS-VAL-VENDA > LIMITE-VENDA
+               COMPUTE AS-COMISSAO = AS-VAL-VENDA * 0.04
+               MOVE "ALTO PADRAO" TO WS-MENSA-GEM
+           ELSE
+               COMPUTE AS-COMISSAO = AS-VAL-VENDA * 0.06
+               MOVE "MEDIO PADRAO" TO WS-MENSA-GEM
+           END-IF
+
+           DISPLAY AS-HIFENS
+           DISPLAY WS-REG-SYSOUT
+           ADD   1               TO   WS-CTEXIB
+           MOVE 'S'              TO   WS-FIM
+           DISPLAY AS-HIFENS
+           .
+
+      *--------------------------------------------------------------*
+      *    PROCEDIMENTOS FINAIS                                      *
+      *--------------------------------------------------------------*
+       050-TERMINAR.
+
+           DISPLAY '** ENCERRADO A EXECUCAO **'
+           DISPLAY "REGISTROS EXIBIDOS = " WS-CTEXIB
+           DISPLAY "TERMINO NORMAL DO PROGRAMA CGPRG004"
+           .
+
+      *---------------> FIM DO PROGRAMA CGPRG004 <-------------------*
